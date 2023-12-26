@@ -190,11 +190,11 @@ export class DiceWorldManager {
 
     this.die.forEach((dice, i) => {
       const multiplier = i % 2 === 0 ? 1 : -1;
-      const diceSize = 3;
+      const diceSize = 3.5;
       //Spawn the dice in a grid so there are fewer collisions at the beginning
       dice.dice.getObject().position.set(
         -22.5, //x
-        5 + Math.floor(i / 10) * diceSize, //y
+        10 + Math.floor(i / 10) * diceSize, //y
         multiplier * (i % 5) * diceSize + multiplier * (diceSize / 2) //z
       );
       dice.dice.getObject().quaternion.set(
@@ -206,8 +206,8 @@ export class DiceWorldManager {
       dice.dice
         .getObject()
         .body.velocity.set(
-          25 * Math.random() + 15,
-          5 * Math.random() + 5,
+          15 * Math.random() + 15,
+          10 * Math.random() + 5,
           5 * Math.random() + 2.5
         );
       dice.dice
