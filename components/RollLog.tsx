@@ -45,7 +45,7 @@ export function RollLog({ history }: { history: RollLogEntry[] }) {
       />
       {/* Border */}
       <div className="opacity-0 group-hover:opacity-100 transition-opacity h-[2px] w-full bg-gradient-to-r from-yellow-700 from-20% via-50% via-transparent to-80% to-yellow-700" />
-      <div className="opacity-0 group-hover:opacity-100 transition-opacity h-[2px] w-full bg-gradient-to-r from-gray-800 from-20% via-50% via-transparent to-80% to-gray-800 group-hover:mb-2" />
+      <div className="opacity-0 group-hover:opacity-100 transition-opacity h-[2px] w-full bg-gradient-to-r from-gray-800 from-20% via-50% via-transparent to-80% to-gray-800 mb-2" />
 
       {/* Container */}
       <div
