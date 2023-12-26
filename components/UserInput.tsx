@@ -36,7 +36,7 @@ export const UserInput = ({
 const UserDetailInput = (props: HTMLProps<HTMLInputElement>) => (
   <input
     {...props}
-    className="bg-transparent outline-none shadow-none w-32 mr-4 focus:border-b focus:border-b-gray-300 text-gray-200"
+    className="bg-transparent outline-none shadow-none w-40 mr-4 focus:border-b focus:border-b-gray-300 text-gray-200"
   />
 );
 
