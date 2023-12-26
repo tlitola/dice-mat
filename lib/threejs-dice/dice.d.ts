@@ -17,6 +17,7 @@ declare class DiceManagerClass {
   barrierBodyMaterial: CANNON.Material;
 
   setWorld(world: CANNON.World): void;
+  setInterval(interval: number): void;
 
   prepareValues(diceValues: DiceValuePair[]): void;
 }

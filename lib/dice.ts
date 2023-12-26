@@ -55,7 +55,10 @@ export class DiceWorldManager {
     this.camera.position.set(0, 50, 40);
 
     // RENDERER
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+    });
     this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -78,6 +81,7 @@ export class DiceWorldManager {
     this.world.solver.iterations = 16;
 
     DiceManager.setWorld(this.world);
+    DiceManager.setInterval(this.interval);
 
     await this._buildScene();
 
@@ -87,9 +91,10 @@ export class DiceWorldManager {
       this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
       this.camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
       this.camera.updateProjectionMatrix();
-      this._update();
+      this.renderer.render(this.scene, this.camera);
     });
-    this._render();
+
+    this.renderer.render(this.scene, this.camera);
   }
   setBeforeRoll(beforeRoll: (rolls: Roll[]) => void) {
     this._beforeRoll = beforeRoll;
@@ -106,20 +111,20 @@ export class DiceWorldManager {
     requestAnimationFrame(() => this.animate());
     this.delta += this.clock.getDelta();
 
+    //Limit framerate to interval (60)
     if (this.delta > this.interval) {
-      this._update();
-      this.delta = this.delta % this.interval;
-    }
-  }
-  _update() {
-    this.world.step(this.interval);
-    this.die.forEach((dice) => dice.dice.updateMeshFromBody());
+      //Calculate next step of the simulation using same dt as in emulation to ensure same result
+      this.world.step(this.interval);
+      //Update meshes of dice
+      this.die.forEach((dice) => dice.dice.updateMeshFromBody());
+      //Update controls
+      const hasToReRender = this.controls.update(this.delta);
+      //Render the scene again if controls has changed or dice have been thrown
+      if (hasToReRender || this.rolling)
+        this.renderer.render(this.scene, this.camera);
 
-    const hasToReRender = this.controls.update(this.delta);
-    if (hasToReRender || this.rolling) this._render();
-  }
-  _render() {
-    this.renderer.render(this.scene, this.camera);
+      this.delta = this.delta - this.interval;
+    }
   }
 
   async throwDice(
@@ -134,7 +139,7 @@ export class DiceWorldManager {
         data: "There can be only one roll active at any given time",
       };
     this.rolling = true;
-    //Remove thrown dice from the scene
+    //Remove previously thrown dice from the scene
     this.die.forEach((dice) => {
       this.scene.remove(dice.dice.getObject());
       this.world.remove(dice.dice.getObject().body);
@@ -150,6 +155,8 @@ export class DiceWorldManager {
       const rolls = parseRoll(roll);
       if (!rolls)
         return { status: "error", data: "Couldn't parse the dice roll" };
+      if (rolls.length > 100)
+        return { status: "error", data: "The maximun number of die is 100" };
       rolls.forEach((currentRoll) => {
         const dice = getDice(currentRoll, diceOptions);
         if (!dice)
@@ -180,17 +187,29 @@ export class DiceWorldManager {
           value: dice.value,
         }))
       );
+
     this.die.forEach((dice, i) => {
-      let yRand = Math.random() * 20;
-      dice.dice.getObject().position.x = -15 - (i % 3) * 1.5;
-      dice.dice.getObject().position.y = 2 + Math.floor(i / 3) * 1.5;
-      dice.dice.getObject().position.z = -15 + (i % 3) * 1.5;
-      dice.dice.getObject().quaternion.x =
-        ((Math.random() * 90 - 45) * Math.PI) / 180;
-      dice.dice.getObject().quaternion.z =
-        ((Math.random() * 90 - 45) * Math.PI) / 180;
-      let rand = Math.random() * 5;
-      dice.dice.getObject().body.velocity.set(25 + rand, 40 + yRand, 15 + rand);
+      const multiplier = i % 2 === 0 ? 1 : -1;
+      const diceSize = 3;
+      //Spawn the dice in a grid so there are fewer collisions at the beginning
+      dice.dice.getObject().position.set(
+        -22.5, //x
+        5 + Math.floor(i / 10) * diceSize, //y
+        multiplier * (i % 5) * diceSize + multiplier * (diceSize / 2) //z
+      );
+      dice.dice.getObject().quaternion.set(
+        ((Math.random() * 90 - 45) * Math.PI) / 180, //x
+        0, //y
+        ((Math.random() * 90 - 45) * Math.PI) / 180, //z
+        0 //w
+      );
+      dice.dice
+        .getObject()
+        .body.velocity.set(
+          25 * Math.random() + 15,
+          5 * Math.random() + 5,
+          5 * Math.random() + 2.5
+        );
       dice.dice
         .getObject()
         .body.angularVelocity.set(
@@ -232,7 +251,7 @@ export class DiceWorldManager {
 
     const loader = new THREE.TextureLoader();
 
-    // FLOOR
+    // Floor
     const floorMaterial = new THREE.MeshLambertMaterial({
       map: await loader.loadAsync("texture.jpg"),
       side: THREE.BackSide,
@@ -253,7 +272,7 @@ export class DiceWorldManager {
     floor1.position.y = -0.5;
     this.scene.add(floor1);
 
-    //Body of the floor
+    //Body of the floor in the physics simulation
     let floorBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Plane(),
@@ -265,7 +284,7 @@ export class DiceWorldManager {
     );
     this.world.addBody(floorBody);
 
-    //WALLS
+    //Walls and their equivalent bodies
     const wallGeometry = new THREE.BoxGeometry(45, 1, 3);
     const wallMaterial = new THREE.MeshLambertMaterial({
       map: await loader.loadAsync("metal.jpg"),
@@ -337,8 +356,6 @@ export class DiceWorldManager {
       position: new CANNON.Vec3(0, 0, 18),
     });
     this.world.addBody(wall4Body);
-
-    this.scene.fog = new THREE.FogExp2(0x9999ff, 0.00025);
   }
 }
 
