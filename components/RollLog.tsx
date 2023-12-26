@@ -123,7 +123,7 @@ const createRollLogEntry = (roll: RollLogEntry) => {
         {" "}
         threw {getRolledDiceString(rollsByType)}:{" "}
       </span>
-      <span>{getRolledValuesString(rollsByType)}</span>
+      <span className="text-white">{getRolledValuesString(rollsByType)}</span>
     </span>
   );
 };
