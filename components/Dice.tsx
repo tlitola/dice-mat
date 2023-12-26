@@ -12,6 +12,7 @@ import {
 } from "unique-names-generator";
 import { RollLogEntry } from "./RollLog";
 import { UserInput } from "./UserInput";
+import { RollInput } from "./RollInput";
 
 const RollLog = dynamic(
   () => import("./RollLog").then((module) => module.RollLog),
@@ -125,42 +126,13 @@ export default function Dice() {
         setGroup={setGroup}
       />
 
-      <div className="absolute z-10 top-[90%] flex flex-col items-center left-1/2 -translate-x-1/2">
-        <form id="roll" className="flex items-center " onSubmit={handleRoll}>
-          <input
-            placeholder="eg. 2d6"
-            className="border-2 border-slate-500 p-2 text-black"
-            name="roll"
-            type="text"
-          />
-          <div className="flex flex-col mx-4">
-            <input
-              className="h-5 w-5 bg-transparent"
-              type="color"
-              value={color as string}
-              onChange={(e) => setColor(e.target.value)}
-            />
-            <input
-              className="h-5 w-5 bg-transparent"
-              type="color"
-              value={textColor as string}
-              onChange={(e) => setTextColor(e.target.value)}
-            />
-          </div>
-
-          <button
-            className="rounded-md p-3 bg-rose-700 w-20 font-bold text-slate-200"
-            type="submit"
-          >
-            Roll
-          </button>
-          <div className="mx-2 flex flex-col items-center">
-            <p>Share?</p>
-            <input defaultChecked={true} name="share" type="checkbox" />
-          </div>
-        </form>
-        <p className="text-sm font-light text-rose-600 m-2" id="message" />
-      </div>
+      <RollInput
+        handleRoll={handleRoll}
+        color={color}
+        textColor={textColor}
+        setColor={setColor}
+        setTextColor={setTextColor}
+      />
       <RollLog history={rollHistory} />
     </>
   );
