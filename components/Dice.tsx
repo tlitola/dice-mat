@@ -23,8 +23,11 @@ export default function Dice() {
     "die_text_color",
     "#000000"
   );
-
-
+  const [name, setName] = useLocalStorage(
+    "name",
+    uniqueNamesGenerator(nameGeneratorConfig)
+  );
+  const [group, setGroup] = useLocalStorage("group", "public");
 
   const ref = useRef<HTMLDivElement>(null);
   const [diceManager, _] = useState(new DiceWorldManager());
@@ -62,6 +65,24 @@ export default function Dice() {
         id="dice-mat"
         className="fixed top-0 right-0 left-0 bottom-0"
       />
+      <div className="fixed top-0 left-0">
+        <label>Name:</label>
+        <input
+          className="bg-transparent"
+          onChange={(e) => setName(e.currentTarget.value ?? "")}
+          value={name}
+          onBlur={(e) => e.target.value === "" && setName(undefined)}
+        />
+        <label title="Throws are shared between people in same group">
+          Group:
+        </label>
+        <input
+          className="bg-transparent"
+          onChange={(e) => setGroup(e.currentTarget.value ?? "")}
+          value={group}
+          onBlur={(e) => e.target.value === "" && setGroup(undefined)}
+        />
+      </div>
 
       <div className="absolute z-10 top-[90%] flex flex-col items-center left-1/2 -translate-x-1/2">
         <form id="roll" className="flex items-center " onSubmit={handleRoll}>
