@@ -66,14 +66,15 @@ export function RollLog({ history }: { history: RollLogEntry[] }) {
       {/* Scroll to bottom */}
       <button
         title="Scroll to bottom"
+        tabIndex={-1}
         onClick={() => containerRef.current?.scrollTo({ top: 0 })}
         className={`${
           !scrollToBottom && "!hidden"
-        } absolute bottom-2 right-4 rounded-full border border-amber-200/50 shadow-xl opacity-90 saturate-[75%]`}
+        } absolute bottom-2 right-4 rounded-full shadow-xl saturate-[75%]`}
       >
         <div
           style={{ boxShadow: "inset 0px 0px 5px black" }}
-          className="px-3 py-1 rounded-full bg-yellow-900 flex"
+          className="px-3 py-1 rounded-full bg-yellow-900 flex border border-amber-200/50"
         >
           <p className="mr-2 my-auto text-amber-100">Latest</p>
           <FontAwesomeIcon
@@ -85,14 +86,15 @@ export function RollLog({ history }: { history: RollLogEntry[] }) {
 
       {/* Open / close */}
       <button
+        tabIndex={-1}
         className={`${
-          show && "!hidden group-hover:!block"
-        } transition-all absolute bottom-2 -left-11 pr-1  m-auto rounded-full`}
+          show && "!opacity-0 group-hover:!opacity-100"
+        } transition-all absolute bottom-2 -left-11 pr-1 m-auto rounded-full shadow-xl saturate-[75%]`}
         onClick={() => setShow((prev) => !prev)}
       >
         <div
           style={{ boxShadow: "inset 0px 0px 5px black" }}
-          className="h-10 w-10 p-1 grid place-content-center rounded-full bg-yellow-900 saturate-[75%] border border-amber-200/50"
+          className="h-10 w-10 p-1 grid place-content-center rounded-full bg-yellow-900 border border-amber-200/50"
         >
           <FontAwesomeIcon
             icon={faHourglassHalf}
