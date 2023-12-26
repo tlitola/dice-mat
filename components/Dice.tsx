@@ -37,6 +37,37 @@ export default function Dice() {
 
   const [rollHistory, setRollHistory] = useState<RollLogEntry[]>([]);
 
+  const throwsChannel = useChannel(
+    group + (group.length !== 0 ? "-" : "") + "throws",
+    [
+      {
+        event: "throw",
+        callBack: async (event: ThrowEvent) => {
+          //Add the roll to history, still invisible as the roll hasn't played out.
+          setRollHistory((history) => [
+            ...history,
+            {
+              thrower: event.payload.name,
+              roll: event.payload.roll,
+              visible: false,
+            },
+          ]);
+
+          //Throw the dice and wait them to settle, the throw should succeed as the roll was broadcasted
+          const roll = await diceManager.throwDice(event.payload.roll, {
+            shouldBeforeRollRun: false,
+          });
+
+          //Make all throws visible
+          roll.status === "ok" &&
+            setRollHistory((history) =>
+              history.map((el) => ({ ...el, visible: true }))
+            );
+        },
+      },
+    ]
+  );
+
   const ref = useRef<HTMLDivElement>(null);
   const [diceManager, _] = useState(new DiceWorldManager());
 
@@ -53,6 +84,13 @@ export default function Dice() {
     diceManager.setColor(color);
     diceManager.setTextColor(textColor);
 
+    diceManager.setBeforeRoll((roll) =>
+      throwsChannel.send({
+        type: "broadcast",
+        event: "throw",
+        payload: { roll, name },
+      } satisfies ThrowEvent)
+    );
   }, [ref, diceManager, throwsChannel, name, color, textColor]);
 
   const handleRoll = async (e: SyntheticEvent) => {
