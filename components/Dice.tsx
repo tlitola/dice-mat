@@ -10,6 +10,12 @@ import {
   animals,
   uniqueNamesGenerator,
 } from "unique-names-generator";
+import { RollLogEntry } from "./RollLog";
+
+const RollLog = dynamic(
+  () => import("./RollLog").then((module) => module.RollLog),
+  { ssr: false }
+);
 
 const nameGeneratorConfig = {
   dictionaries: [adjectives, animals],
@@ -28,6 +34,8 @@ export default function Dice() {
     uniqueNamesGenerator(nameGeneratorConfig)
   );
   const [group, setGroup] = useLocalStorage("group", "public");
+
+  const [rollHistory, setRollHistory] = useState<RollLogEntry[]>([]);
 
   const ref = useRef<HTMLDivElement>(null);
   const [diceManager, _] = useState(new DiceWorldManager());
@@ -56,6 +64,12 @@ export default function Dice() {
     const roll = await diceManager.throwDice(target.roll.value || "2d6", {
       shouldBeforeRollRun: target.share.value,
     });
+    if (roll.status === "ok") {
+      setRollHistory((history) => [
+        ...history,
+        { thrower: "You", visible: true, roll: roll.data },
+      ]);
+    }
   };
 
   return (
@@ -120,6 +134,7 @@ export default function Dice() {
         </form>
         <p className="text-sm font-light text-rose-600 m-2" id="message" />
       </div>
+      <RollLog history={rollHistory} />
     </>
   );
 }
