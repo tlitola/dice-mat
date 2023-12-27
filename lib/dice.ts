@@ -245,10 +245,10 @@ export class DiceWorldManager {
   }
   async _buildScene() {
     //Lights
-    const ambient = new THREE.AmbientLight("#ffffff", 0.4);
+    const ambient = new THREE.AmbientLight("#ffffff", 0.3);
     this.scene.add(ambient);
 
-    const light = new THREE.SpotLight("#ffffff", 1200);
+    const light = new THREE.SpotLight("#ffffff", 1300);
     light.position.set(30, 45, 40);
     light.target.position.set(0, 0, 0);
     light.castShadow = true;
@@ -262,20 +262,17 @@ export class DiceWorldManager {
 
     // Floor
     const floorMaterial = new THREE.MeshLambertMaterial({
-      map: await loader.loadAsync("texture.jpg"),
-      side: THREE.BackSide,
+      map: await loader.loadAsync("textures/fabric.webp"),
+      normalMap: await loader.loadAsync("textures/fabric_normal.webp"),
+      color: "#8b9b84",
+      side: THREE.DoubleSide,
     });
     const floorGeometry = new THREE.PlaneGeometry(45, 30, 15, 10);
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.receiveShadow = true;
     floor.rotation.x = Math.PI / 2;
     this.scene.add(floor);
-
-    const floorMaterial2 = new THREE.MeshLambertMaterial({
-      map: await loader.loadAsync("metal.jpg"),
-      side: THREE.FrontSide,
-    });
-    const floor1 = new THREE.Mesh(floorGeometry, floorMaterial2);
+    const floor1 = new THREE.Mesh(floorGeometry, floorMaterial);
     floor1.receiveShadow = true;
     floor1.rotation.x = Math.PI / 2;
     floor1.position.y = -0.5;
@@ -296,7 +293,9 @@ export class DiceWorldManager {
     //Walls and their equivalent bodies
     const wallGeometry = new THREE.BoxGeometry(45, 1, 3);
     const wallMaterial = new THREE.MeshLambertMaterial({
-      map: await loader.loadAsync("metal.jpg"),
+      map: await loader.loadAsync("textures/wood.webp"),
+      normalMap: await loader.loadAsync("textures/wood_normal.webp"),
+      color: "#c1b2a2",
     });
     const wall1 = new THREE.Mesh(wallGeometry, wallMaterial);
     wall1.position.z = 15.5;
