@@ -1,22 +1,14 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-export function useLocalStorage(
-  key: string
-): [string | undefined, Dispatch<SetStateAction<string | undefined>>];
+export function useLocalStorage(key: string): [string | undefined, Dispatch<SetStateAction<string | undefined>>];
 export function useLocalStorage(
   key: string,
-  defaultValue: string
+  defaultValue: string,
 ): [string, Dispatch<SetStateAction<string | undefined>>];
 export function useLocalStorage(
   key: string,
-  defaultValue?: string | undefined
-): [
-  string | undefined,
-  (
-    | Dispatch<SetStateAction<string>>
-    | Dispatch<SetStateAction<string | undefined>>
-  )
-] {
+  defaultValue?: string | undefined,
+): [string | undefined, Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<string | undefined>>] {
   const [state, setState] = useState<string | undefined>(defaultValue);
 
   useEffect(() => {
@@ -24,9 +16,7 @@ export function useLocalStorage(
     item && setState(item);
   }, [key, setState]);
 
-  const setLocalState: Dispatch<SetStateAction<string | undefined>> = (
-    newState
-  ) => {
+  const setLocalState: Dispatch<SetStateAction<string | undefined>> = (newState) => {
     if (newState === undefined) {
       setState(defaultValue);
       localStorage.removeItem(key);

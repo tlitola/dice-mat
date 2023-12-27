@@ -20,9 +20,7 @@ export const UserInput = ({
         onBlur={(e) => e.target.value === "" && setName(undefined)}
         spellCheck="false"
       />
-      <UserDetailLabel title="Throws are shared between people in same group">
-        Group:
-      </UserDetailLabel>
+      <UserDetailLabel title="Throws are shared between people in same group">Group:</UserDetailLabel>
       <UserDetailInput
         onChange={(e) => setGroup(e.currentTarget.value ?? "")}
         value={group}
@@ -40,9 +38,7 @@ const UserDetailInput = (props: HTMLProps<HTMLInputElement>) => (
   />
 );
 
-const UserDetailLabel = (
-  props: HTMLProps<HTMLLabelElement> & { children: ReactNode }
-) => (
+const UserDetailLabel = (props: HTMLProps<HTMLLabelElement> & { children: ReactNode }) => (
   <label {...props} className="mr-2 font-light text-gray-200">
     {props.children}
   </label>

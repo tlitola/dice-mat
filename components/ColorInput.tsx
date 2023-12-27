@@ -19,13 +19,7 @@ export const ColorInput = ({
         ref.current?.showPicker();
       }}
     >
-      <input
-        className="opacity-0 absolute"
-        ref={ref}
-        type="color"
-        value={value}
-        onChange={onChange}
-      />
+      <input className="opacity-0 absolute" ref={ref} type="color" value={value} onChange={onChange} />
     </div>
   );
 };

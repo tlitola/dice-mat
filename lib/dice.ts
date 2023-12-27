@@ -1,14 +1,6 @@
 import * as THREE from "three";
 import * as CANNON from "cannon";
-import {
-  DiceD10,
-  DiceD12,
-  DiceD20,
-  DiceD6,
-  DiceD8,
-  DiceManager,
-  DiceOptions,
-} from "@/lib/threejs-dice/dice";
+import { DiceD10, DiceD12, DiceD20, DiceD6, DiceD8, DiceManager, DiceOptions } from "@/lib/threejs-dice/dice";
 import CameraControls from "camera-controls";
 import { parse } from "path";
 
@@ -121,8 +113,7 @@ export class DiceWorldManager {
       //Update controls
       const hasToReRender = this.controls.update(this.delta);
       //Render the scene again if controls has changed or dice have been thrown
-      if (hasToReRender || this.rolling)
-        this.renderer.render(this.scene, this.camera);
+      if (hasToReRender || this.rolling) this.renderer.render(this.scene, this.camera);
 
       this.delta = this.delta - this.interval;
     }
@@ -134,10 +125,8 @@ export class DiceWorldManager {
       shouldBeforeRollRun?: boolean;
       diceColor?: string;
       diceTextColor?: string;
-    } = { shouldBeforeRollRun: true }
-  ): Promise<
-    { status: "ok"; data: Roll[] } | { status: "error"; data: string }
-  > {
+    } = { shouldBeforeRollRun: true },
+  ): Promise<{ status: "ok"; data: Roll[] } | { status: "error"; data: string }> {
     if (this.rolling) {
       return {
         status: "error",
@@ -194,7 +183,7 @@ export class DiceWorldManager {
         this.die.map((dice) => ({
           dice: dice.dice.getFaceCount(),
           value: dice.value,
-        }))
+        })),
       );
 
     this.die.forEach((dice, i) => {
@@ -204,28 +193,18 @@ export class DiceWorldManager {
       dice.dice.getObject().position.set(
         -22.5, //x
         10 + Math.floor(i / 10) * diceSize, //y
-        multiplier * (i % 5) * diceSize + multiplier * (diceSize / 2) //z
+        multiplier * (i % 5) * diceSize + multiplier * (diceSize / 2), //z
       );
       dice.dice.getObject().quaternion.set(
         ((Math.random() * 90 - 45) * Math.PI) / 180, //x
         0, //y
         ((Math.random() * 90 - 45) * Math.PI) / 180, //z
-        0 //w
+        0, //w
       );
+      dice.dice.getObject().body.velocity.set(15 * Math.random() + 15, 10 * Math.random() + 5, 5 * Math.random() + 2.5);
       dice.dice
         .getObject()
-        .body.velocity.set(
-          15 * Math.random() + 15,
-          10 * Math.random() + 5,
-          5 * Math.random() + 2.5
-        );
-      dice.dice
-        .getObject()
-        .body.angularVelocity.set(
-          20 * Math.random() - 10,
-          20 * Math.random() - 10,
-          20 * Math.random() - 10
-        );
+        .body.angularVelocity.set(20 * Math.random() - 10, 20 * Math.random() - 10, 20 * Math.random() - 10);
       dice.dice.updateBodyFromMesh();
     });
     DiceManager.prepareValues(this.die);
@@ -284,10 +263,7 @@ export class DiceWorldManager {
       shape: new CANNON.Plane(),
       material: DiceManager.floorBodyMaterial,
     });
-    floorBody.quaternion.setFromAxisAngle(
-      new CANNON.Vec3(1, 0, 0),
-      -Math.PI / 2
-    );
+    floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
     this.world.addBody(floorBody);
 
     //Walls and their equivalent bodies
@@ -386,9 +362,7 @@ const getDice = (faces: number, options: DiceOptions): Die => {
   }
 };
 
-const parseRoll = (
-  roll: string | Roll[]
-): { status: "error"; data: string } | { status: "ok"; data: number[] } => {
+const parseRoll = (roll: string | Roll[]): { status: "error"; data: string } | { status: "ok"; data: number[] } => {
   let rolls: number[];
   if (typeof roll === "string") {
     const parts = roll.split(" ");
@@ -403,18 +377,13 @@ const parseRoll = (
       return acc.concat(new Array(amount).fill(dice));
     }, [] as number[]);
   } else {
-    rolls = roll
-      .filter((dice) => !isNaN(dice.dice) && !isNaN(dice.value))
-      .map((dice) => dice.dice);
+    rolls = roll.filter((dice) => !isNaN(dice.dice) && !isNaN(dice.value)).map((dice) => dice.dice);
   }
 
-  if (rolls.length === 0)
-    return { status: "error", data: "Couldn't parse the dice roll" };
-  if (rolls.length > 100)
-    return { status: "error", data: "The maximun number of die is 100" };
+  if (rolls.length === 0) return { status: "error", data: "Couldn't parse the dice roll" };
+  if (rolls.length > 100) return { status: "error", data: "The maximun number of die is 100" };
   const unAllowed = rolls.find((dice) => !allowedDie.includes(dice));
-  if (unAllowed)
-    return { status: "error", data: "Unsupported dice: d" + unAllowed };
+  if (unAllowed) return { status: "error", data: "Unsupported dice: d" + unAllowed };
   return { status: "ok", data: rolls };
 };
 

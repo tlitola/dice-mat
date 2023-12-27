@@ -3,11 +3,7 @@ import { Roll } from "@/lib/dice";
 import { ReactNode, UIEvent, useRef, useState } from "react";
 import debounce from "lodash.debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCaretDown,
-  faDiceD20,
-  faHourglassHalf,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown, faDiceD20, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
 import { arraySum } from "@/lib/utils/utils";
 
 export interface RollLogEntry {
@@ -28,7 +24,7 @@ export function RollLog({ history }: { history: RollLogEntry[] }) {
   const debouncedScroll = useRef(
     debounce((el: HTMLDivElement) => {
       setScrollToBottom(el.scrollTop !== 0);
-    }, 500)
+    }, 500),
   ).current;
 
   return (
@@ -68,19 +64,14 @@ export function RollLog({ history }: { history: RollLogEntry[] }) {
         title="Scroll to bottom"
         tabIndex={-1}
         onClick={() => containerRef.current?.scrollTo({ top: 0 })}
-        className={`${
-          !scrollToBottom && "!hidden"
-        } absolute bottom-2 right-4 rounded-full shadow-xl saturate-[75%]`}
+        className={`${!scrollToBottom && "!hidden"} absolute bottom-2 right-4 rounded-full shadow-xl saturate-[75%]`}
       >
         <div
           style={{ boxShadow: "inset 0px 0px 5px black" }}
           className="px-3 py-1 rounded-full bg-yellow-900 flex border border-amber-200/50"
         >
           <p className="mr-2 my-auto text-amber-100">Latest</p>
-          <FontAwesomeIcon
-            className={` text-amber-200 text-md my-auto`}
-            icon={faCaretDown}
-          />
+          <FontAwesomeIcon className={` text-amber-200 text-md my-auto`} icon={faCaretDown} />
         </div>
       </button>
 
@@ -96,10 +87,7 @@ export function RollLog({ history }: { history: RollLogEntry[] }) {
           style={{ boxShadow: "inset 0px 0px 5px black" }}
           className="h-10 w-10 p-1 grid place-content-center rounded-full bg-yellow-900 border border-amber-200/50"
         >
-          <FontAwesomeIcon
-            icon={faHourglassHalf}
-            className=" text-xl text-amber-200"
-          />
+          <FontAwesomeIcon icon={faHourglassHalf} className=" text-xl text-amber-200" />
         </div>
       </button>
     </div>
@@ -107,24 +95,18 @@ export function RollLog({ history }: { history: RollLogEntry[] }) {
 }
 
 const createRollLogEntry = (roll: RollLogEntry) => {
-  const rollsByType = roll.roll.reduce((acc, cur) => {
-    acc[cur.dice] = (acc[cur.dice] ?? []).concat([cur.value]);
-    return acc;
-  }, {} as { [key: number]: number[] });
+  const rollsByType = roll.roll.reduce(
+    (acc, cur) => {
+      acc[cur.dice] = (acc[cur.dice] ?? []).concat([cur.value]);
+      return acc;
+    },
+    {} as { [key: number]: number[] },
+  );
 
   return (
     <span className={`${!roll.visible && "hidden"}`}>
-      <span
-        className={`${
-          roll.thrower === "You" ? "text-green-400" : "text-sky-400"
-        }`}
-      >
-        {roll.thrower}
-      </span>
-      <span className="text-gray-300">
-        {" "}
-        threw {getRolledDiceString(rollsByType)}:{" "}
-      </span>
+      <span className={`${roll.thrower === "You" ? "text-green-400" : "text-sky-400"}`}>{roll.thrower}</span>
+      <span className="text-gray-300"> threw {getRolledDiceString(rollsByType)}: </span>
       <span className="text-white">{getRolledValuesString(rollsByType)}</span>
     </span>
   );
@@ -140,9 +122,7 @@ const getRolledDiceString = (rolls: { [key: number]: number[] }) => {
 const getRolledValuesString = (rolls: { [key: number]: number[] }) => {
   const values = Object.values(rolls);
   return (
-    values
-      .reduce((acc, values) => acc + values.join(", ") + "; ", "")
-      .slice(0, -2) +
+    values.reduce((acc, values) => acc + values.join(", ") + "; ", "").slice(0, -2) +
     " " +
     `(${values.reduce((acc, cur) => acc + arraySum(cur), 0)})`
   );

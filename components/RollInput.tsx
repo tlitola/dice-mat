@@ -28,21 +28,13 @@ export const RollInput = ({
             <label className="group-hover:opacity-100 opacity-0 transition-opacity absolute text-sm font-light text-gray-300 -translate-x-full -left-2">
               Dice color
             </label>
-            <ColorInput
-              className="w-5 h-5 mb-1 rounded"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-            />
+            <ColorInput className="w-5 h-5 mb-1 rounded" value={color} onChange={(e) => setColor(e.target.value)} />
           </div>
           <div className="group">
             <label className="group-hover:opacity-100 opacity-0 transition-opacity absolute text-sm font-light text-gray-300 -translate-x-full -left-2">
               Dice font color
             </label>
-            <ColorInput
-              className="w-5 h-5 rounded"
-              value={textColor}
-              onChange={(e) => setTextColor(e.target.value)}
-            />
+            <ColorInput className="w-5 h-5 rounded" value={textColor} onChange={(e) => setTextColor(e.target.value)} />
           </div>
         </div>
 
@@ -60,13 +52,7 @@ export const RollInput = ({
             type="text"
             autoFocus
           />
-          <p
-            className={`absolute -bottom-5 text-sm font-light text-rose-500 ${
-              !error && "hidden"
-            }`}
-          >
-            {error}
-          </p>
+          <p className={`absolute -bottom-5 text-sm font-light text-rose-500 ${!error && "hidden"}`}>{error}</p>
         </div>
 
         {/* Roll button */}
@@ -80,10 +66,7 @@ export const RollInput = ({
             className="px-4 py-2 rounded-full bg-yellow-900 flex border border-amber-200/50"
           >
             <p className="my-auto text-amber-100 select-none mr-2">Roll</p>
-            <FontAwesomeIcon
-              className={` text-amber-200 text-md my-auto`}
-              icon={faDiceD20}
-            />
+            <FontAwesomeIcon className={` text-amber-200 text-md my-auto`} icon={faDiceD20} />
           </div>
         </button>
 
