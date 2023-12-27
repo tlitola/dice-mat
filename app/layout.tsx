@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Dice-Mat",
-  description: "Dovie'andi se tovya sagain - It's time to roll the dice",
+  description: "Dovie'andi se tovya sagain - It's time to toss the dice",
 };
 
 export default function RootLayout({
