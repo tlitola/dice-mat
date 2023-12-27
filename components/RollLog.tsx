@@ -1,6 +1,6 @@
 "use client";
 import { Roll } from "@/lib/dice";
-import { ReactNode, UIEvent, useRef, useState } from "react";
+import { UIEvent, useRef, useState } from "react";
 import debounce from "lodash.debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faDiceD20, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";

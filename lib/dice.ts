@@ -2,7 +2,6 @@ import * as THREE from "three";
 import * as CANNON from "cannon";
 import { DiceD10, DiceD12, DiceD20, DiceD6, DiceD8, DiceManager, DiceOptions } from "@/lib/threejs-dice/dice";
 import CameraControls from "camera-controls";
-import { parse } from "path";
 
 type Die = DiceD6 | DiceD8 | DiceD10 | DiceD12 | DiceD20;
 
@@ -79,7 +78,7 @@ export class DiceWorldManager {
     await this._buildScene();
 
     window.addEventListener("resize", () => {
-      var SCREEN_WIDTH = window.innerWidth,
+      const SCREEN_WIDTH = window.innerWidth,
         SCREEN_HEIGHT = window.innerHeight;
       this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
       this.camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
@@ -258,7 +257,7 @@ export class DiceWorldManager {
     this.scene.add(floor1);
 
     //Body of the floor in the physics simulation
-    let floorBody = new CANNON.Body({
+    const floorBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Plane(),
       material: DiceManager.floorBodyMaterial,

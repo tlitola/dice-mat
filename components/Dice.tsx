@@ -55,7 +55,7 @@ export default function Dice() {
   ]);
 
   const ref = useRef<HTMLDivElement>(null);
-  const [diceManager, _] = useState(new DiceWorldManager());
+  const [diceManager] = useState(new DiceWorldManager());
 
   useEffect(() => {
     const initializeDiceManager = async () => {
