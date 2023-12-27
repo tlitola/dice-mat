@@ -1,0 +1,13 @@
+node_modules
+.idea
+.next
+.git
+cache
+Dockerfile
+.dockerignore
+fly.toml
+test
+.env
+.husky
+.vscode
+docker-compose.yml
