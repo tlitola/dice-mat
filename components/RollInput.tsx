@@ -47,7 +47,7 @@ export const RollInput = ({
           <input
             style={{ boxShadow: "inset 0px 0px 2px black" }}
             placeholder="eg. 2d6"
-            className="outline-none p-3 bg-zinc-800 text-amber-50/95 placeholder:text-amber-50/75 placeholder:font-light placeholder:italic"
+            className="outline-none p-3 w-[calc(13rem-3px)] bg-zinc-800 text-amber-50/95 placeholder:text-amber-50/75 placeholder:font-light placeholder:italic"
             name="roll"
             type="text"
             autoFocus
