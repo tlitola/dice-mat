@@ -58,6 +58,8 @@ export default function Dice() {
           //Throw the dice and wait them to settle, the throw should succeed as the roll was broadcasted
           const roll = await diceManager.throwDice(event.payload.roll, {
             shouldBeforeRollRun: false,
+            diceColor: event.payload.diceColor?.base,
+            diceTextColor: event.payload.diceColor?.text,
           });
 
           //Make all throws visible
@@ -90,7 +92,14 @@ export default function Dice() {
       throwsChannel.send({
         type: "broadcast",
         event: "throw",
-        payload: { roll, name },
+        payload: {
+          roll,
+          name,
+          diceColor: {
+            base: color,
+            text: textColor,
+          },
+        },
       } satisfies ThrowEvent)
     );
   }, [ref, diceManager, throwsChannel, name, color, textColor]);

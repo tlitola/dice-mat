@@ -129,7 +129,11 @@ export class DiceWorldManager {
 
   async throwDice(
     roll: string | Roll[],
-    options: { shouldBeforeRollRun?: boolean } = { shouldBeforeRollRun: true }
+    options: {
+      shouldBeforeRollRun?: boolean;
+      diceColor?: string;
+      diceTextColor?: string;
+    } = { shouldBeforeRollRun: true }
   ): Promise<
     { status: "ok"; data: Roll[] } | { status: "error"; data: string }
   > {
@@ -147,8 +151,8 @@ export class DiceWorldManager {
     this.die = [];
     const diceOptions: DiceOptions = {
       size: 1.5,
-      backColor: this.color,
-      fontColor: this.textColor,
+      backColor: options.diceColor ?? this.color,
+      fontColor: options.diceTextColor ?? this.textColor,
     };
 
     if (typeof roll === "string") {
