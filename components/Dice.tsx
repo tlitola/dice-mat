@@ -37,6 +37,7 @@ export default function Dice() {
   );
   const [group, setGroup] = useLocalStorage("group", "public");
 
+  const [error, setError] = useState<string | undefined>(undefined);
   const [rollHistory, setRollHistory] = useState<RollLogEntry[]>([]);
 
   const throwsChannel = useChannel(
@@ -111,10 +112,13 @@ export default function Dice() {
       share: { checked: boolean };
     };
 
+    setError(undefined);
     const roll = await diceManager.throwDice(target.roll.value || "2d6", {
       shouldBeforeRollRun: target.share.checked,
     });
-    if (roll.status === "ok") {
+    if (roll.status === "error") {
+      setError(roll.data);
+    } else {
       setRollHistory((history) => [
         ...history,
         { thrower: "You", visible: true, roll: roll.data },
@@ -142,6 +146,7 @@ export default function Dice() {
         textColor={textColor}
         setColor={setColor}
         setTextColor={setTextColor}
+        error={error}
       />
       <RollLog history={rollHistory} />
     </>

@@ -10,6 +10,7 @@ import {
   DiceOptions,
 } from "@/lib/threejs-dice/dice";
 import CameraControls from "camera-controls";
+import { parse } from "path";
 
 type Die = DiceD6 | DiceD8 | DiceD10 | DiceD12 | DiceD20;
 
@@ -137,11 +138,12 @@ export class DiceWorldManager {
   ): Promise<
     { status: "ok"; data: Roll[] } | { status: "error"; data: string }
   > {
-    if (this.rolling)
+    if (this.rolling) {
       return {
         status: "error",
         data: "There can be only one roll active at any given time",
       };
+    }
     this.rolling = true;
     //Remove previously thrown dice from the scene
     this.die.forEach((dice) => {
@@ -156,28 +158,31 @@ export class DiceWorldManager {
     };
 
     if (typeof roll === "string") {
-      const rolls = parseRoll(roll);
-      if (!rolls)
-        return { status: "error", data: "Couldn't parse the dice roll" };
-      if (rolls.length > 100)
-        return { status: "error", data: "The maximun number of die is 100" };
-      rolls.forEach((currentRoll) => {
+      //Roll is a string that needs to be parsed
+      const parsedRoll = parseRoll(roll);
+
+      if (parsedRoll.status === "error") {
+        this.rolling = false;
+        return { status: "error", data: parsedRoll.data };
+      }
+
+      parsedRoll.data.forEach((currentRoll) => {
         const dice = getDice(currentRoll, diceOptions);
-        if (!dice)
-          return { status: "error", data: "Unsupported dice: d" + currentRoll };
+
         this.die.push({ dice, value: randomInt(1, currentRoll) });
         this.scene.add(dice.getObject());
       });
     } else {
+      //Roll is supplied with pre-set values, parse the roll to see if there are any errors
+      const parsedRoll = parseRoll(roll);
+      if (parsedRoll.status === "error") {
+        this.rolling = false;
+        return { status: "error", data: parsedRoll.data };
+      }
+
       roll.forEach((currentRoll) => {
-        if (isNaN(currentRoll.dice) || isNaN(currentRoll.value))
-          return { status: "error", data: "Couldn't parse the dice roll" };
         const dice = getDice(currentRoll.dice, diceOptions);
-        if (!dice)
-          return {
-            status: "error",
-            data: "Unsupported dice: d" + currentRoll.dice,
-          };
+
         this.die.push({ dice, value: currentRoll.value });
         this.scene.add(dice.getObject());
       });
@@ -363,7 +368,9 @@ export class DiceWorldManager {
   }
 }
 
-const getDice = (faces: number, options: DiceOptions) => {
+const allowedDie = [6, 8, 10, 12, 20];
+
+const getDice = (faces: number, options: DiceOptions): Die => {
   switch (faces) {
     case 6:
       return new DiceD6(options);
@@ -376,20 +383,40 @@ const getDice = (faces: number, options: DiceOptions) => {
     case 20:
       return new DiceD20(options);
     default:
-      return undefined;
+      return new DiceD6(options);
   }
 };
 
-const parseRoll = (roll: string) => {
-  const parts = roll.split(" ");
-  if (parts[0] !== "cl") {
-    return parts.reduce((acc, roll) => {
+const parseRoll = (
+  roll: string | Roll[]
+): { status: "error"; data: string } | { status: "ok"; data: number[] } => {
+  let rolls: number[];
+  if (typeof roll === "string") {
+    const parts = roll.split(" ");
+
+    rolls = parts.reduce((acc, roll) => {
       const [amount, dice] = roll.split("d").map((el) => parseInt(el));
+      //eg. d6
       if (roll.split("d")[0] === "" && !isNaN(dice)) return acc.concat([dice]);
+      //Unvalid string
       else if (isNaN(amount) || isNaN(dice)) return acc;
+      //eg. 2d6
       return acc.concat(new Array(amount).fill(dice));
     }, [] as number[]);
+  } else {
+    rolls = roll
+      .filter((dice) => !isNaN(dice.dice) && !isNaN(dice.value))
+      .map((dice) => dice.dice);
   }
+
+  if (rolls.length === 0)
+    return { status: "error", data: "Couldn't parse the dice roll" };
+  if (rolls.length > 100)
+    return { status: "error", data: "The maximun number of die is 100" };
+  const unAllowed = rolls.find((dice) => !allowedDie.includes(dice));
+  if (unAllowed)
+    return { status: "error", data: "Unsupported dice: d" + unAllowed };
+  return { status: "ok", data: rolls };
 };
 
 function randomInt(min: number, max: number) {

@@ -10,12 +10,14 @@ export const RollInput = ({
   textColor,
   setColor,
   setTextColor,
+  error,
 }: {
   handleRoll: FormEventHandler<HTMLFormElement>;
   color: string;
   textColor: string;
   setColor: Dispatch<SetStateAction<string | undefined>>;
   setTextColor: Dispatch<SetStateAction<string | undefined>>;
+  error: string | undefined;
 }) => {
   return (
     <div className="absolute top-[90%] flex flex-col items-center left-1/2 -translate-x-1/2">
@@ -45,7 +47,11 @@ export const RollInput = ({
         </div>
 
         {/* Roll input */}
-        <div className="w-52 ml-2 mr-4 p-px border border-transparent focus-within:border-amber-200/50">
+        <div
+          className={`w-52 ml-2 mr-4 p-px border border-transparent focus-within:border-amber-200/50 ${
+            error && "!border-rose-500"
+          }`}
+        >
           <input
             style={{ boxShadow: "inset 0px 0px 2px black" }}
             placeholder="eg. 2d6"
@@ -54,6 +60,13 @@ export const RollInput = ({
             type="text"
             autoFocus
           />
+          <p
+            className={`absolute -bottom-5 text-sm font-light text-rose-500 ${
+              !error && "hidden"
+            }`}
+          >
+            {error}
+          </p>
         </div>
 
         {/* Roll button */}
@@ -77,7 +90,6 @@ export const RollInput = ({
         {/* Share the throw? */}
         <ShareCheckbox title="Check if you wish to broadcast this throw to others in your group" />
       </form>
-      <p className="text-sm font-light text-rose-600 m-2" id="message" />
     </div>
   );
 };
