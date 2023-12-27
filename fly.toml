@@ -9,6 +9,8 @@ primary_region = "ams"
 [experimental]
   auto_rollback = true
 
+
+
 [http_service]
   internal_port = 3000
   force_https = true
@@ -28,3 +30,8 @@ primary_region = "ams"
     method = "GET"
     path = "/"
 
+[[vm]]
+  cpu_kind = "shared"
+  size = "shared-cpu-1x"
+  cpus = 1
+  memory_mb = 256
