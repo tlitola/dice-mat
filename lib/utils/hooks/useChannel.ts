@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { supaBase } from "../../supabase";
 import { RealtimeEvent } from "../protocols";
 
-export const useChannel = <T>(
+export const useChannel = (
   channelName: string,
   callBacks?: {
-    event: T;
-    callBack: (event: RealtimeEvent & { event: T }) => void;
+    event: string;
+    callBack: (event: RealtimeEvent) => void;
   }[],
 ) => {
   let channel = supaBase.channel(channelName, {
