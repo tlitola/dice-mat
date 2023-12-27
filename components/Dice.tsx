@@ -99,10 +99,11 @@ export default function Dice() {
     e.preventDefault();
     const target = e.target as typeof e.target & {
       roll: { value: string };
-      share: { value: boolean };
+      share: { checked: boolean };
     };
+
     const roll = await diceManager.throwDice(target.roll.value || "2d6", {
-      shouldBeforeRollRun: target.share.value,
+      shouldBeforeRollRun: target.share.checked,
     });
     if (roll.status === "ok") {
       setRollHistory((history) => [

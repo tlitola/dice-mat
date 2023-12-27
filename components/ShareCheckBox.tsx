@@ -30,7 +30,13 @@ export const ShareCheckbox = (props: HTMLProps<HTMLInputElement>) => {
           } !h-6`}
         />
       </div>
-      <input checked={checked} className="hidden" type="checkbox" />
+      <input
+        checked={checked}
+        onChange={() => {}}
+        name="share"
+        className="hidden"
+        type="checkbox"
+      />
       <p className="text-sm font-light text-gray-300 absolute translate-x-9 whitespace-nowrap group-hover:block hidden select-none">
         {checked ? "Sharing throws" : "Not sharing throws"}
       </p>
