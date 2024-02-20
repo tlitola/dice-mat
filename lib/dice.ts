@@ -1,12 +1,21 @@
 import * as THREE from "three";
 import * as CANNON from "cannon";
-import { DiceD10, DiceD12, DiceD20, DiceD6, DiceD8, DiceManager, DiceOptions } from "@/lib/threejs-dice/dice";
+import {
+  DiceD10,
+  DiceD12,
+  DiceD20,
+  DiceD6,
+  DiceD8,
+  DiceGateway,
+  DiceManager,
+  DiceOptions,
+} from "@/lib/threejs-dice/dice";
 import CameraControls from "camera-controls";
 
 type Die = DiceD6 | DiceD8 | DiceD10 | DiceD12 | DiceD20;
 
 export interface Roll {
-  dice: number;
+  dice: AllowedDie;
   value: number;
 }
 
@@ -25,7 +34,7 @@ export class DiceWorldManager {
   color = "#ff0000";
   textColor = "#000000";
 
-  _beforeRoll!: (roll: { dice: number; value: number }[]) => void | undefined;
+  _beforeRoll!: (roll: { dice: AllowedDie; value: number }[]) => void | undefined;
 
   async init(ref: HTMLDivElement) {
     if (this.scene) return;
@@ -157,7 +166,7 @@ export class DiceWorldManager {
       parsedRoll.data.forEach((currentRoll) => {
         const dice = getDice(currentRoll, diceOptions);
 
-        this.die.push({ dice, value: randomInt(1, currentRoll) });
+        this.die.push({ dice, value: randomInt(1, allowedDie[currentRoll]) });
         this.scene.add(dice.getObject());
       });
     } else {
@@ -180,7 +189,7 @@ export class DiceWorldManager {
       this._beforeRoll &&
       this._beforeRoll(
         this.die.map((dice) => ({
-          dice: dice.dice.getFaceCount(),
+          dice: dice.dice.getType(),
           value: dice.value,
         })),
       );
@@ -216,7 +225,7 @@ export class DiceWorldManager {
     return {
       status: "ok",
       data: this.die.map((dice) => ({
-        dice: dice.dice.getFaceCount(),
+        dice: dice.dice.getType(),
         value: dice.value,
       })),
     };
@@ -342,14 +351,24 @@ export class DiceWorldManager {
   }
 }
 
-const allowedDie = [6, 8, 10, 12, 20];
+const allowedDie = {
+  6: 6,
+  8: 8,
+  gw: 8,
+  10: 10,
+  12: 12,
+  20: 20,
+};
+export type AllowedDie = keyof typeof allowedDie;
 
-const getDice = (faces: number, options: DiceOptions): Die => {
+const getDice = (faces: AllowedDie, options: DiceOptions): Die => {
   switch (faces) {
     case 6:
       return new DiceD6(options);
     case 8:
       return new DiceD8(options);
+    case "gw":
+      return new DiceGateway(options);
     case 10:
       return new DiceD10(options);
     case 12:
@@ -361,27 +380,35 @@ const getDice = (faces: number, options: DiceOptions): Die => {
   }
 };
 
-const parseRoll = (roll: string | Roll[]): { status: "error"; data: string } | { status: "ok"; data: number[] } => {
-  let rolls: number[];
+const parseRoll = (roll: string | Roll[]): { status: "error"; data: string } | { status: "ok"; data: AllowedDie[] } => {
+  let rolls: AllowedDie[];
   if (typeof roll === "string") {
     const parts = roll.split(" ");
 
     rolls = parts.reduce((acc, roll) => {
-      const [amount, dice] = roll.split("d").map((el) => parseInt(el));
-      //eg. d6
-      if (roll.split("d")[0] === "" && !isNaN(dice)) return acc.concat([dice]);
-      //Unvalid string
-      else if (isNaN(amount) || isNaN(dice)) return acc;
-      //eg. 2d6
-      return acc.concat(new Array(amount).fill(dice));
-    }, [] as number[]);
-  } else {
-    rolls = roll.filter((dice) => !isNaN(dice.dice) && !isNaN(dice.value)).map((dice) => dice.dice);
-  }
+      let [amount, dice]: (string | number)[] = roll.split("d");
 
+      //Return if amount is not empty string or number
+      if (amount !== "" && isNaN(parseInt(amount))) return acc;
+      //Return if dice is not allowed
+      if (!Object.keys(allowedDie).includes(dice)) return acc;
+
+      //Parse amount and dice to number
+      amount = parseInt(amount || "1");
+      dice = dice === "gw" ? dice : parseInt(dice);
+
+      return acc.concat(new Array(amount).fill(dice));
+    }, [] as AllowedDie[]);
+  } else {
+    rolls = roll
+      .filter((dice) => Object.keys(allowedDie).includes(dice.dice + "") && !isNaN(dice.value))
+      .map((dice) => dice.dice);
+  }
+  if (rolls.some((el) => el === "gw") && rolls.some((el) => el !== "gw"))
+    return { status: "error", data: "Mixing gateway and normal rolls is not supported" };
   if (rolls.length === 0) return { status: "error", data: "Couldn't parse the dice roll" };
   if (rolls.length > 100) return { status: "error", data: "The maximun number of die is 100" };
-  const unAllowed = rolls.find((dice) => !allowedDie.includes(dice));
+  const unAllowed = rolls.find((dice) => !Object.keys(allowedDie).includes(dice + ""));
   if (unAllowed) return { status: "error", data: "Unsupported dice: d" + unAllowed };
   return { status: "ok", data: rolls };
 };

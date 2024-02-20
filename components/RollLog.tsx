@@ -1,5 +1,5 @@
 "use client";
-import { Roll } from "@/lib/dice";
+import { AllowedDie, Roll } from "@/lib/dice";
 import { UIEvent, useRef, useState } from "react";
 import debounce from "lodash.debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -100,7 +100,7 @@ const createRollLogEntry = (roll: RollLogEntry) => {
       acc[cur.dice] = (acc[cur.dice] ?? []).concat([cur.value]);
       return acc;
     },
-    {} as { [key: number]: number[] },
+    {} as Record<AllowedDie, number[]>,
   );
 
   return (
@@ -112,15 +112,32 @@ const createRollLogEntry = (roll: RollLogEntry) => {
   );
 };
 
-const getRolledDiceString = (rolls: { [key: number]: number[] }) => {
+const getRolledDiceString = (rolls: Record<AllowedDie, number[]>) => {
   return Object.entries(rolls)
     .map(([dice, values]) => `${values.length}d${dice}`)
     .join(", ")
     .replace(/(, )(?!.*\1)/, " and ");
 };
 
-const getRolledValuesString = (rolls: { [key: number]: number[] }) => {
+const getSuccessesString = (plural: boolean) => (plural ? "successes" : "success");
+const getFailuresString = (plural: boolean) => (plural ? "failures" : "failure");
+
+const getRolledValuesString = (rolls: Record<AllowedDie, number[]>) => {
   const values = Object.values(rolls);
+  if (rolls.gw?.length > 0) {
+    const { cs, s, cf } = values[0].reduce(
+      (acc, cur) => {
+        if (cur === 1) acc.cf = acc.cf + 1;
+        else if (cur === 8) acc.cs = acc.cs + 1;
+        else if (cur % 2 === 0) acc.s = acc.s + 1;
+        return acc;
+      },
+      { cs: 0, s: 0, cf: 0 },
+    );
+    return `${s} ${getSuccessesString(s > 1)}${cs > 0 ? `, ${cs} critical ${getSuccessesString(cs > 1)}` : ""}${
+      cf > 0 ? `, ${cf} critical ${getFailuresString(cf > 1)}` : ""
+    }`;
+  }
   return (
     values.reduce((acc, values) => acc + values.join(", ") + "; ", "").slice(0, -2) +
     " " +

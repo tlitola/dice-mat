@@ -1,5 +1,6 @@
 import * as CANNON from "cannon";
 import * as THREE from "three";
+import { AllowedDie } from "../dice";
 
 declare class MeshWithBody extends THREE.Mesh {
   body: CANNON.Body;
@@ -36,11 +37,13 @@ declare class DiceObject {
   isFinished(): boolean;
   getUpsideValue(): number;
   getFaceCount(): number;
+  getType(): AllowedDie;
 }
 
 export declare class DiceD4 extends DiceObject {}
 export declare class DiceD6 extends DiceObject {}
 export declare class DiceD8 extends DiceObject {}
+export declare class DiceGateway extends DiceObject {}
 export declare class DiceD10 extends DiceObject {}
 export declare class DiceD12 extends DiceObject {}
 export declare class DiceD20 extends DiceObject {}
