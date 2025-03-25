@@ -1,4 +1,4 @@
-FROM node:18.17.0-alpine AS base
+FROM node:20.0.9-alpine AS base
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=!!!NEXT_PUBLIC_SUPABASE_ANON_KEY!!!
 
 RUN npm run build
 
-FROM node:18.17.0-alpine as prod
+FROM node:20.0.9-alpine as prod
 
 WORKDIR /app
 
