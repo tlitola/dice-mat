@@ -9,6 +9,7 @@ export const useChannel = (
     callBack: (event: RealtimeEvent) => void;
   }[],
 ) => {
+  if (!supaBase) throw new Error("subabase client must be defined");
   let channel = supaBase.channel(channelName, {
     config: { broadcast: { self: false } },
   });
