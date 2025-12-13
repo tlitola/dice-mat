@@ -19,7 +19,7 @@
     "camera-controls": "^2.7.3",
     "cannon": "^0.6.2",
     "lodash.debounce": "^4.0.8",
-    "next": "14.2.32",
+    "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
     "react-dropdown": "^1.11.0",
